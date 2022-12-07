@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "strictPropertyInitialization": false,
+    "target": "ES6",
+    "useDefineForClassFields": true,
+    "module": "ES6",
+    "lib": ["ES6", "DOM", "ES2022"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["deps", "src/world/chunk_builder_worker.ts"]
+}
