@@ -1,5 +1,5 @@
 import { Graphics } from "./graphics";
-
+declare var document: any;
 export abstract class Game {
   public graphics: Graphics
   private previousRAF: number | null

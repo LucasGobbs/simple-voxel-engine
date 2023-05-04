@@ -6,18 +6,21 @@
 // Default type of `self` is `WorkerGlobalScope & typeof globalThis`
 // https://github.com/microsoft/TypeScript/issues/14877
 declare var self: ServiceWorkerGlobalScope;
-import { ChunkBuilder } from "./chunk_builder";
-import { chunkPoolThreaded } from "./chunk_pool_threaded";
-self.addEventListener('message', ({ data }: any) => {
-  const pos = data;
-  console.log(chunkPoolThreaded.getId())
+import { chunkPool } from ".";
+import { ChunkBuilder } from "../chunk-builder";
+
+self.addEventListener('message', ({ data: pos }: any) => {
+  console.log("A")
   const chunk = ChunkBuilder.create(pos);
   const geometryData = chunk.generateGeometry()
+  console.log(pos)
+  console.log(chunkPool.getChunk('0_0_0'))
   const rt = {
     key: chunk.generateKey(),
     geometryData: geometryData,
     chunkData: chunk.getBlocks()
   }
+
   postMessage(rt);
 });
 

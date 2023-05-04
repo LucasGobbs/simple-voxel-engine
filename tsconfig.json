@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "strictPropertyInitialization": false,
-    "target": "ES6",
+    "target": "ES2022",
     "useDefineForClassFields": true,
-    "module": "ES6",
-    "lib": ["ES6", "DOM", "ES2022"],
+    "module": "ES2022",
+    "lib": ["ES2022", "DOM"],
     "moduleResolution": "Node",
     "strict": true,
     "resolveJsonModule": true,
@@ -17,5 +17,5 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["deps", "src/world/chunk_builder_worker.ts"]
+  "exclude": ["deps", "src/world/chunk-builder/chunk_builder_worker.ts"]
 }

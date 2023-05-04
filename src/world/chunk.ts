@@ -1,17 +1,19 @@
 import * as THREE from 'three'
 import { createNoise2D } from 'simplex-noise';
 import alea from 'alea';
-import {chunkPool} from './chunk_pool'
 import { Arr } from '../utils/array';
 import { BlockType } from './block';
 import { Float16BufferAttribute } from 'three';
 import { CHUNK_WIDTH } from './constants';
-import { chunkPoolThreaded } from './chunk_pool_threaded';
+import { chunkPool } from './chunk-pool'
 
 let aoIntensity = 0.9;
 let aoTable = [0.7, 0.4, 0.2, 0.0].map((x) => x * aoIntensity);
 
-
+const clamp = (value: number, a = 0, b = 1) =>
+  value > b 
+    ? b
+    : (value < a) ? a : value
 const aos = [
   { // H
     n: 0,
@@ -124,13 +126,13 @@ const material = new THREE.ShaderMaterial({
       value: [0.4, 0.2, 0.1, 0.0]
     },
     fogColor: {
-      value: new THREE.Color(0x000000)
+      value: new THREE.Color(0xFF0000)
     },
     fogFar: {
-      value: 200
+      value: 600
     },
     fogDensity: {
-      value: 0.01
+      value: 0.5
     },
     fogNear: {
       value: 0.015
@@ -230,13 +232,12 @@ const material = new THREE.ShaderMaterial({
 
     float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
 	  gl_FragColor.rgb = mix( gl_FragColor.rgb, 
-      mix(vec3(0.45,0.113,0.70), fogColor, fogFactor*0.95), 
+      mix(vec3(0.15,0.113,0.70), fogColor, fogFactor*0.95), 
       fogFactor );
   }
 `,
 })
 material.transparent = true;
-console.log('a')
 const aoFn = (arr: any) => arr.map((x: number) => (x - x / 25))
 function vertexAO(_side1: boolean, _side2: boolean, _corner: boolean) {
   const side1 = _side1 ? 1 : 0;
@@ -265,6 +266,7 @@ export class Chunk {
   private cellSliceSize: number;
   private cell: Uint8Array;
   private offset: number[];
+  public graphicsId?: number; 
   constructor(private cellSize: number, private pos: number[] = [0,0,0], empty = false) {
     this.offset = pos.map((x) => x * cellSize)
     this.cellSliceSize = cellSize * cellSize;
@@ -336,27 +338,27 @@ export class Chunk {
         this.offset[0] + SIZE : x < 0 ?
         this.offset[0] - SIZE : this.offset[0];
       
-      const nchunk_y = y >= SIZE ?
-        this.offset[1] + SIZE : y < 0 ?
-        this.offset[1] - SIZE : this.offset[1];
+    const nchunk_y = y >= SIZE ?
+      this.offset[1] + SIZE : y < 0 ?
+      this.offset[1] - SIZE : this.offset[1];
+    
+    const nchunk_z = z >= SIZE ?
+      this.offset[2] + SIZE : z < 0 ?
+      this.offset[2] - SIZE : this.offset[2];
+    
+    const key = nchunk_x + '_' + nchunk_y + '_' + nchunk_z;
+    if (key == this.generateKey()) return 0;
       
-      const nchunk_z = z >= SIZE ?
-        this.offset[2] + SIZE : z < 0 ?
-        this.offset[2] - SIZE : this.offset[2];
+    const chunk = chunkPool.getChunk(key);
+    if (chunk) {
+      const ncx = x < 0 ? SIZE - 1 : x % SIZE;
+      const ncy = y < 0 ? SIZE - 1 : y % SIZE;
+      const ncz = z < 0 ? SIZE - 1 : z % SIZE;
       
-      const key = nchunk_x + '_' + nchunk_y + '_' + nchunk_z;
-      if (key == this.generateKey()) return 0;
-        
-    const chunk = chunkPoolThreaded.get(key);
-      if (chunk) {
-        console.log(chunk)
-        
-        const ncx = x < 0 ? SIZE - 1 : x % SIZE;
-        const ncy = y < 0 ? SIZE - 1 : y % SIZE;
-        const ncz = z < 0 ? SIZE - 1 : z % SIZE;
-        return chunk.getVoxel(ncx, ncy, ncz);
-      }
-      return 0
+
+      return chunk.getVoxel(ncx, ncy, ncz);
+    }
+    return 0
   }
   isInChunk(x: number, y: number, z: number): boolean {
     return !this.isNotInChunk(x, y, z); 
@@ -381,6 +383,7 @@ export class Chunk {
     return this.getVoxelArr(applyTrn(arr, op))
   }
   generateGeometryDataForCell(cellX: number, cellY: number, cellZ: number) {
+    console.log(this.generateKey())
     const {cellSize} = this;
     const positions = [];
     const normals = [];
@@ -398,16 +401,19 @@ export class Chunk {
         const voxelZ = startZ + z;
         for (let x = 0; x < cellSize; ++x) {
           const voxelX = startX + x;
+          const rndA = (Math.random() * 2 - 1) 
+
           const voxel = this.getVoxel(voxelX, voxelY, voxelZ);
           if (voxel) {
             const scale = 300;
             const noiseValue = noise2D(
               (x + this.offset[0]) / scale,
               (z + this.offset[2]) / scale)
+              
             let green = [
               0.2 + noiseValue/5,
               0.6 + noiseValue/3 ,
-              0.4 + noiseValue/5
+              0.4 + noiseValue/5 + rndA/5
             ]
 
             let yellow = [
@@ -416,14 +422,13 @@ export class Chunk {
               0.2 + noiseValue/5
             ]
     
-          
             // There is a voxel here but do we need faces for it?
             for (const {dir, corners} of VoxelFaces) {
               const neighbor = this.getVoxel(
                   voxelX + dir[0],
                   voxelY + dir[1],
                   voxelZ + dir[2]);
-              if (!neighbor || (voxel !== BlockType.rock && neighbor === BlockType.rock)) {
+              if (!neighbor) {
                 const curr = [voxelX, voxelY, voxelZ]
                 // this voxel has no neighbor in this direction so we need a face.
                 const ndx = positions.length / 3;
@@ -458,16 +463,16 @@ export class Chunk {
                     
                     case BlockType.leaves:
                       color = [
-                        0.23 + green[0]/5,
-                        0.47 + green[1]/5,
-                        0.003 + green[2]/5];
+                        0.23 + green[0]/5 ,
+                        clamp(0.47 + green[1]/4 + rndA/50),
+                        0.2 + green[2]/5];
                       break;
                     
                     case BlockType.purpleLeaves:
                       color = [
                         0.815,
-                        0.08 + green[1]/5,
-                        0.96 ];
+                        clamp(0.08 + green[1]/5 + rndA/5) ,
+                        0.96 + rndA/100];
                       break;
                   }
           
@@ -567,7 +572,9 @@ export class Chunk {
     
     geometry.setIndex(new THREE.BufferAttribute(indices, 1));
     
-    return new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, material);
+
+    return 
   }
 
   public generateGeometry() {

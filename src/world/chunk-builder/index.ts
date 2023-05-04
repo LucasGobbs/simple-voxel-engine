@@ -1,7 +1,7 @@
 import { createNoise2D, createNoise3D, NoiseFunction2D, NoiseFunction3D } from 'simplex-noise';
-import { BlockType } from './block';
-import { Chunk } from './chunk';
-import { CHUNK_WIDTH } from './constants';
+import { BlockType } from '../block';
+import { Chunk } from '../chunk';
+import { CHUNK_WIDTH } from '../constants';
 import alea from 'alea';
 const noise_1: NoiseFunction2D = createNoise2D(alea('1'));
 const noise_2: NoiseFunction2D = createNoise2D(alea('2'));
@@ -30,6 +30,10 @@ export class ChunkBuilder{
           const _x = x + offset[0];
           const _y = y + offset[1];
           const _z = z + offset[2];
+          if ((x == 0 || z ==0) && y < 8) {
+            chunk.setVoxel(x, y, z, BlockType.sand);
+            continue;
+          }
           const n = noise_1(_x / scale, _z / scale);
           const height = n * 0.5 + 0.5;
           const random = noise_2(_x / scale, _z / scale) * 0.5 + 0.5;

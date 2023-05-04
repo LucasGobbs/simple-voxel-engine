@@ -1,3 +1,5 @@
+/*global document*/
+
 import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
@@ -8,6 +10,8 @@ import { ThirdPersonCamera } from '../third_person_camera';
 import { PointerLockControls } from './pointer';
 import { Input } from './input';
 const input = new Input();
+declare var document: any;
+declare var window: any;
 
 // /addons/controls/OrbitControls.js';
 export class Graphics{
@@ -35,7 +39,6 @@ export class Graphics{
     this.initCamera();
     // this.controls = new OrbitControls(this.camera, this.threeInstance.domElement);
     this.controls = new PointerLockControls(this.camera, this.threeInstance.domElement);
-    
     const blocker = document.getElementById( 'blocker' )!;
 		const instructions = document.getElementById( 'instructions' )!;
 
@@ -96,12 +99,12 @@ export class Graphics{
     const fov = 60;
     const aspect = 1920 / 1080;
     const near = 0.1;
-    const far = 200.0;
+    const far = 300.0;
     this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this.camera.position.set(10, 9, 25);
     // this.camera.zoom = 100.0
     const color = 0xFF0000;  // white
-    this.scene.fog = new THREE.Fog(0xb0faff, 0.15, 200);
+    this.scene.fog = new THREE.Fog(0xb0faff, 0.15, 300);
       //new THREE.FogExp2(0xb0faff, 0.0085);
 
     // this.charControls = new CharacterController({
