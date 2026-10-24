@@ -574,7 +574,7 @@ export class Chunk {
     
     const mesh = new THREE.Mesh(geometry, material);
 
-    return 
+    return mesh
   }
 
   public generateGeometry() {
