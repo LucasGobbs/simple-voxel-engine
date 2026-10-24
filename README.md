@@ -40,11 +40,7 @@ No seams between streamed chunks:
 
 ![far view](docs/far_view.png)
 
-Down in the canopies:
-
 ![canopy](docs/canopy_shore.png)
-
-Under the leaves, where sand meets grass:
 
 ![under canopy](docs/under_canopy.png)
 
