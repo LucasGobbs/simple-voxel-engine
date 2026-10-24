@@ -1,4 +1,4 @@
-# cube-engine
+# Simple VoxelEngine
 
 ![cube-engine](docs/hero.png)
 
@@ -36,10 +36,6 @@ The frame loop and renderer setup live in `src/engine`, including a forked `Poin
 
 ## Gallery
 
-Over the forest:
-
-![aerial](docs/forest_aerial.png)
-
 No seams between streamed chunks:
 
 ![far view](docs/far_view.png)
@@ -57,4 +53,4 @@ Under the leaves, where sand meets grass:
 A prototype, not a game:
 
 - The threaded worker pool is written, but the simple pool is the one running
-- No collision or physics — you fly through blocks
+- No collision or physics
