@@ -30,10 +30,6 @@ export class ChunkBuilder{
           const _x = x + offset[0];
           const _y = y + offset[1];
           const _z = z + offset[2];
-          if ((x == 0 || z ==0) && y < 8) {
-            chunk.setVoxel(x, y, z, BlockType.sand);
-            continue;
-          }
           const n = noise_1(_x / scale, _z / scale);
           const height = n * 0.5 + 0.5;
           const random = noise_2(_x / scale, _z / scale) * 0.5 + 0.5;
@@ -56,12 +52,19 @@ export class ChunkBuilder{
                 if (treeValue > 0.90) {
                   const treeHeight = y + 1;
                   const leaves = random > 0.8 ? BlockType.purpleLeaves : BlockType.leaves;
-                  for (let lh = treeHeight; lh <= treeHeight + 4; lh++)
+                  for (let lh = treeHeight; lh <= treeHeight + 5; lh++)
                     chunk.setVoxel(x, lh, z, BlockType.wood)
-                  
+
                   for (let lx = x - 2; lx <= x + 2; lx++)
-                    for (let lz = z - 2; lz <= z + 2; lz++)
-                     chunk.setVoxel(lx, treeHeight + 5, lz, leaves)
+                    for (let lz = z - 2; lz <= z + 2; lz++) {
+                      if (Math.abs(lx - x) === 2 && Math.abs(lz - z) === 2) continue
+                      chunk.setVoxel(lx, treeHeight + 4, lz, leaves)
+                      chunk.setVoxel(lx, treeHeight + 5, lz, leaves)
+                    }
+                  for (let lx = x - 1; lx <= x + 1; lx++)
+                    for (let lz = z - 1; lz <= z + 1; lz++)
+                      chunk.setVoxel(lx, treeHeight + 6, lz, leaves)
+                  chunk.setVoxel(x, treeHeight + 7, z, leaves)
                 }
                 
                 chunk.setVoxel(x, y, z, BlockType.dirt);

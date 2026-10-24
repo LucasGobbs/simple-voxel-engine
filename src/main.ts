@@ -59,20 +59,20 @@ class Main extends Game {
         Math.round(pos.z / CHUNK_WIDTH) * CHUNK_WIDTH
       ];
   
-      // let a = 2;
-      // for (let x = -a; x < a; x++) {
-      //   for (let z = -a; z < a; z++) {
-      //     const newKey = [key[0] + x * CHUNK_WIDTH, 0, key[2] + z * CHUNK_WIDTH];
-      //     const chunk = chunkPool.getChunk(newKey.join('_'))
-      //     if (!chunk) {
-      //       chunkPool.createChunk([
-      //         key[0] / CHUNK_WIDTH + x,
-      //         0,
-      //         key[2] / CHUNK_WIDTH + z
-      //       ], this.addChunkToScene.bind(this));
-      //     }
-      //   }
-      // }
+      const a = 2;
+      for (let x = -a; x < a; x++) {
+        for (let z = -a; z < a; z++) {
+          const newKey = [key[0] + x * CHUNK_WIDTH, 0, key[2] + z * CHUNK_WIDTH];
+          const chunk = chunkPool.getChunk(newKey.join('_'))
+          if (!chunk) {
+            chunkPool.createChunk([
+              key[0] / CHUNK_WIDTH + x,
+              0,
+              key[2] / CHUNK_WIDTH + z
+            ], this.addChunkToScene.bind(this));
+          }
+        }
+      }
     }
     
    
