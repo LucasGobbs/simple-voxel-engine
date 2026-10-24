@@ -9,6 +9,7 @@ A small voxel engine prototype built on three.js and TypeScript. It generates Mi
 ## Features
 
 - Chunked voxel terrain (32×64×32 chunks) from layered, alea-seeded simplex noise: rivers, sand, dirt, rock, trees with green or purple leaves
+- Chunk streaming: new chunks generate around the camera as you fly
 - Per-chunk face culling — only visible faces get meshed
 - Per-vertex ambient occlusion (8-neighbor corner rule), custom shader with fog
 - Flying camera with pointer-lock mouse look
@@ -33,10 +34,27 @@ No shader build step needed — Vite serves everything.
 
 The game loop lives in `src/engine` — an abstract frame loop with delta-time stepping, renderer/fog setup, and a forked `PointerLockControls` (`src/engine/pointer.ts`). World code lives in `src/world`: chunk generation from noise, the face-culling and AO tables, and meshing. Chunk generation is set up to run off the main thread via a worker pool (`chunk-builder.worker.ts` + `WorkerPool`), but the simple in-process pool (`src/world/chunk-pool`) is what actually runs right now.
 
+## Gallery
+
+Aerial view over the forest:
+
+![aerial](docs/forest_aerial.png)
+
+Chunk boundary free terrain, streams loaded as the camera moves:
+
+![far view](docs/far_view.png)
+
+Down among the canopies:
+
+![canopy](docs/canopy_shore.png)
+
+Under the leaves, sand meeting grass:
+
+![under canopy](docs/under_canopy.png)
+
 ## Status
 
 This is a prototype/experiment, not a game:
 
-- Chunk streaming in `main.ts` is mostly commented-out stub code
 - The threaded worker pool is written but the simple pool is the active one
 - No collision or physics yet — you fly through blocks
