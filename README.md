@@ -2,7 +2,7 @@
 
 ![cube-engine](docs/hero.png)
 
-A voxel engine prototype I built to learn three.js. It generates Minecraft-style terrain in chunks: hills with rivers, sandy shores, dirt and rock layers, trees. Each chunk becomes one mesh with only the visible faces, lit by baked ambient occlusion.
+A voxel engine prototype I built in three.js. It generates Minecraft-style terrain in chunks: hills with rivers, sandy shores, dirt and rock layers, trees. Each chunk becomes one mesh with only the visible faces, lit by baked ambient occlusion.
 
 ![demo](docs/demo.gif)
 
